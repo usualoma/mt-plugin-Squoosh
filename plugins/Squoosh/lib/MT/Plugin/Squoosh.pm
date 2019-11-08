@@ -14,64 +14,74 @@ sub plugin {
     MT->component(component());
 }
 
-sub template_source_async_asset_upload {
-    my ($cb, $app, $tmpl) = @_;
-    my $plugin = plugin();
-
-	my $static = $app->static_path;
-	my $plugin_name = basename($plugin->{full_path});
-	my $dir = basename(dirname($plugin->{full_path}));
-
-    $$tmpl .= <<__HTML__;
-<__trans_section component="@{[component()]}">
-
-<script type="module" src="$static$dir/$plugin_name/js/main.js"></script>
-
-<style type="text/css">
-#mt-plugin-squoosh-modal .modal-dialog {
-  max-width: 100%;
+sub squoosh_enabled {
+    my $class = shift;
+    my ($author) = @_;
+    if (!$author || !defined($author->squoosh_enabled)) {
+        plugin()->get_config_value('squoosh_enabled_by_default');
+    }
+    else {
+        $author->squoosh_enabled;
+    }
 }
 
-#mt-plugin-squoosh-modal .modal-body {
-  max-height: calc(100vh - 62px - 49px - 2rem - 2rem);
-  height: calc(100vh - 62px - 49px - 2rem - 2rem);
+sub pre_save_author {
+    my ($cb, $app, $obj, $original) = @_;
+    if ($app->param('squoosh_enabled_beacon')) {
+        $obj->squoosh_enabled($app->param('squoosh_enabled') ? 1 : 0);
+        $original->squoosh_enabled($app->param('squoosh_enabled') ? 1 : 0);
+    }
+    1;
 }
 
-#mt-plugin-squoosh-modal iframe {
-  width: 100%;
-  height: 100%;
+sub insert_after {
+    my ($tmpl, $id, $tokens) = @_;
+
+    my $before = $id ? $tmpl->getElementById($id) : undef;
+
+    if (!ref $tokens) {
+        $tokens = plugin()->load_tmpl($tokens)->tokens;
+    }
+
+    foreach my $t ( @$tokens ) {
+        $tmpl->insertAfter( $t, $before );
+        $before = $t;
+    }
 }
-</style>
 
-<div id="mt-plugin-squoosh-modal" class="modal" role="dialog" aria-hidden="true" tabindex="-1">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title"><__trans phrase="Optimize Image"></h4>
-      </div>
-      <div class="modal-body">
-        <iframe id="mt-plugin-squoosh-editor" style="flex: 1 1; border: 0"></iframe>
-      </div>
-      <div class="modal-footer">
-        <button
-           type="submit"
-           id="mt-plugin-squoosh-upload"
-           class="btn btn-primary action primary button">
-          <__trans phrase="Upload">
-        </button>
-        <button
-           type="button"
-           class="btn btn-default action button"
-           data-dismiss="modal">
-          <__trans phrase="Cancel">
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+sub template_param_async_asset_upload {
+    my ($cb, $app, $param, $tmpl) = @_;
 
-</__trans_section>
-__HTML__
+    my $squoosh_enabled = __PACKAGE__->squoosh_enabled($app->user);
+    my $squoosh_static_path = do {
+        my $plugin = plugin();
+	    my $static = $app->static_path;
+	    my $plugin_name = basename($plugin->{full_path});
+	    my $dir = basename(dirname($plugin->{full_path}));
+        "$static$dir/$plugin_name";
+    };
+
+    insert_after($tmpl, 'normalize_orientation', 'async_asset_upload.tmpl');
+    insert_after($tmpl, 'normalize_orientation', [
+        $tmpl->createElement('var', {
+            name => 'squoosh_enabled',
+            value => $squoosh_enabled,
+        }),
+        $tmpl->createElement('var', {
+            name => 'squoosh_static_path',
+            value => $squoosh_static_path,
+        }),
+    ]);
+    insert_after($tmpl, undef, 'async_asset_upload_modal.tmpl');
+}
+
+sub template_param_edit_author {
+    my ($cb, $app, $param, $tmpl) = @_;
+
+    my $author = $app->param('id') ? MT->model('author')->load($app->param('id')) : undef;
+    $param->{squoosh_enabled} = __PACKAGE__->squoosh_enabled($author);
+
+    insert_after($tmpl, 'tag_delim', 'edit_author.tmpl');
 }
 
 1;

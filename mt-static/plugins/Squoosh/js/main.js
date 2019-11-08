@@ -1,6 +1,14 @@
 import MTPluginSquooshSquoosh from "./sdk.js";
 
-($ => {
+jQuery($ => {
+  $("#mt-plugin-squoosh-filename").on("input.MTPluginSquoosh", ev => {
+    const $span = $("<span />")
+      .text(ev.target.value)
+      .appendTo("body");
+    $(ev.target).css({ width: `${$span.width() + 25}px` });
+    $span.remove();
+  });
+
   async function init() {
     const { back, setFile, getBlob } = await MTPluginSquooshSquoosh(
       document.querySelector("#mt-plugin-squoosh-editor"),
@@ -8,9 +16,26 @@ import MTPluginSquooshSquoosh from "./sdk.js";
     );
 
     const uploadFiles = window.uploadFiles;
-    window.uploadFiles = files => {
+    window.uploadFiles = (files, items) => {
+      if (!document.querySelector("#squoosh_enabled").checked) {
+        return uploadFiles(files);
+      }
+
       let promise = Promise.resolve();
       for (let i = 0; i < files.length; i++) {
+        if (files[i].size === 0) {
+          // Maybe directory
+          continue;
+        }
+        if (
+          items &&
+          items[i].webkitGetAsEntry &&
+          items[i].webkitGetAsEntry().isDirectory
+        ) {
+          // Maybe directory only for Chrome
+          continue;
+        }
+
         const f = files[i];
 
         if (!f.type.match("image.*")) {
@@ -63,6 +88,11 @@ import MTPluginSquooshSquoosh from "./sdk.js";
               }
             );
 
+            $("#mt-plugin-squoosh-filename")
+              .val(f.name)
+              .triggerHandler("input.MTPluginSquoosh");
+            $("#mt-plugin-squoosh-upload").prop("disabled", false);
+
             $("#mt-plugin-squoosh-modal").modal({
               backdrop: "static",
               keyboard: false,
@@ -70,9 +100,12 @@ import MTPluginSquooshSquoosh from "./sdk.js";
 
             $("#mt-plugin-squoosh-upload").on(
               `click.MTPluginSquoosh.${i}`,
-              async () => {
+              async ev => {
+                $("#mt-plugin-squoosh-upload").prop("disabled", true);
+
                 const blob = await getBlob(1);
-                uploadFiles([new File([blob], f.name, { type: f.type })]);
+                const name = $("#mt-plugin-squoosh-filename").val() || f.name;
+                uploadFiles([new File([blob], name, { type: f.type })]);
                 $("#mt-plugin-squoosh-modal").modal("hide");
               }
             );
@@ -87,4 +120,4 @@ import MTPluginSquooshSquoosh from "./sdk.js";
     };
   }
   init();
-})(jQuery);
+});
