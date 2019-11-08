@@ -9,7 +9,21 @@ This plugin enables you to optimize images before uploading by Squoosh.
 
 ## Demo
 
-![Screenshot](https://raw.githubusercontent.com/usualoma/mt-plugin-Squoosh/master/artwork/screenshot.png)
+https://youtu.be/FzmHe0Xn3cc
+
+## Settings
+
+You can set a default behavior for system.
+
+![Plugin settings](https://raw.githubusercontent.com/usualoma/mt-plugin-Squoosh/master/artwork/plugin-settings.png)
+
+You can set a default behavior for user.
+
+![User settings](https://raw.githubusercontent.com/usualoma/mt-plugin-Squoosh/master/artwork/user-settings.png)
+
+You can enable/disable for each upload.
+
+![Each upload](https://raw.githubusercontent.com/usualoma/mt-plugin-Squoosh/master/artwork/each-upload.png)
 
 ## Installation
 
@@ -32,13 +46,12 @@ Should look like this when installed:
 
 ## Requirements
 
-* MT7
+* Movable Type 7
 
 ## Supported browsers
 
 * Google Chrome
 * Firefox
-* Microsoft Edge
 * Safari
 
 ## LICENSE
