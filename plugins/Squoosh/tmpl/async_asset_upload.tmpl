@@ -1,0 +1,14 @@
+<script type="module" src="<mt:Var name="squoosh_static_path" />/js/main.js" async defer></script>
+<link rel="stylesheet" href="<mt:Var name="squoosh_static_path" />/css/main.css" />
+
+<mtapp:setting
+    id="squoosh"
+    label="<__trans phrase="Squoosh">"
+    show_label="1">
+  <div class="form-group">
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" id="squoosh_enabled" value="1"<mt:if name="squoosh_enabled"> checked="checked"</mt:if> class="cb custom-control-input" />
+      <label class="custom-control-label" for="squoosh_enabled"><__trans phrase="Use Squoosh before uploading images."></label>
+    </div>
+  </div>
+</mtapp:setting>

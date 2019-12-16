@@ -1,0 +1,31 @@
+id: Squoosh
+name: Squoosh
+version: 0.0.2
+
+description: <__trans phrase="This plugin enables you to optimize images before uploading by Squoosh.">
+author_name: Taku Amano
+author_link: http://blog.taaas.jp/
+plugin_link: http://blog.taaas.jp/mt/mt-plugin-Squoosh/
+
+l10n_lexicon:
+  ja:
+    This plugin enables you to optimize images before uploading by Squoosh.: "Squooshを利用して、画像のアップロード時に画像の最適化を実行できるようにします。"
+    Optimize Image: "画像の最適化"
+    Enabled By Default: "デフォルトで有効にする"
+    Use Squoosh before uploading images.: "画像をアップロードする際にSquooshを適用する"
+
+schema_version: 0.01
+object_types:
+  author:
+    squoosh_enabled: boolean meta
+
+settings:
+  squoosh_enabled_by_default:
+    Default: 1
+
+config_template: squoosh_system_config.tmpl
+
+callbacks:
+  MT::App::CMS::template_param.async_asset_upload: $Squoosh::MT::Plugin::Squoosh::template_param_async_asset_upload
+  MT::App::CMS::template_param.edit_author: $Squoosh::MT::Plugin::Squoosh::template_param_edit_author
+  MT::App::CMS::cms_pre_save.author: $Squoosh::MT::Plugin::Squoosh::pre_save_author
