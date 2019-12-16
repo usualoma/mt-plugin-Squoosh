@@ -5,7 +5,7 @@ This plugin enables you to optimize images before uploading by Squoosh.
 
 ## Screenshot
 
-![Screenshot](https://raw.githubusercontent.com/usualoma/mt-plugin-Squoosh/master/artwork/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/usualoma/mt-plugin-Squoosh/master/artwork/screenshot.jpg)
 
 ## Demo
 
