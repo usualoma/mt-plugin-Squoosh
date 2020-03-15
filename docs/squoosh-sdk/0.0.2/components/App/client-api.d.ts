@@ -19,11 +19,11 @@ export declare class API {
      */
     back(): void;
     /**
-     * resize
+     * resizeToLimit
      * @param width  Max width
      * @param height Max height
      */
-    resize(width: number, height: number): Promise<void>;
+    resizeToLimit(width: number, height: number): Promise<void>;
     /**
      * set quality
      * @param quality value
